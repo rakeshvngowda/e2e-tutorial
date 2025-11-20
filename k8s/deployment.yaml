@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: e2e-tutorial
+  labels:
+    app: e2e-tutorial
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: e2e-tutorial
+  template:
+    metadata:
+      labels:
+        app: e2e-tutorial
+    spec:
+      containers:
+      - name: e2e-tutorial
+        image: e2e-tutorial:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
