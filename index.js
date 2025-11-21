@@ -9,6 +9,10 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello, World!' });
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
