@@ -3,12 +3,12 @@ pipeline {
         docker {
             image 'node:24-alpine'
         }
+    }
 
-        environment {
-            IMAGE = "e2e-tutorial"
-            REGISTRY = "localhost:5000"
-            NAMESPACE = "dev"
-        }
+    environment {
+        IMAGE = "e2e-tutorial"
+        REGISTRY = "localhost:5000"
+        NAMESPACE = "dev"
     }
 
     stages {
@@ -24,6 +24,7 @@ pipeline {
                 sh 'npm install'
             }
         }
+        
         stage('Build Project') {
             steps {
                 sh 'npm run build || echo "No build script"'
@@ -38,7 +39,8 @@ pipeline {
                 """
             }
         }
-         stage('Push Image to Local Registry') {
+        
+        stage('Push Image to Local Registry') {
             steps {
                 sh "docker push $REGISTRY/$IMAGE:latest"
             }
@@ -53,6 +55,7 @@ pipeline {
             }
         }
     }
+    
     post {
         success {
             echo "🚀 Deployment completed successfully!"
