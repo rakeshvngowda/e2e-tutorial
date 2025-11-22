@@ -1,28 +1,30 @@
 pipeline {
-    agent {
-        docker {
-            image 'node:24-alpine'
-            args '-u root:root'
-        }
-    }
+    agent any
 
     environment {
         IMAGE = "e2e-tutorial"
         REGISTRY = "localhost:5000"
         NAMESPACE = "dev"
-        HOME = "${WORKSPACE}"
     }
 
     stages {
-        stage('Check Node') {
+        stage('Checkout') {
             steps {
-                sh 'node -v'
-                sh 'npm -v'
+                checkout scm
             }
         }
 
         stage('Install Dependencies') {
+            agent {
+                docker {
+                    image 'node:24-alpine'
+                    args '-u root:root'
+                    reuseNode true
+                }
+            }
             steps {
+                sh 'node -v'
+                sh 'npm -v'
                 sh 'npm install'
             }
         }
@@ -30,23 +32,23 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh """
-                    docker build -t $IMAGE:latest .
-                    docker tag $IMAGE:latest $REGISTRY/$IMAGE:latest
+                    docker build -t ${IMAGE}:latest .
+                    docker tag ${IMAGE}:latest ${REGISTRY}/${IMAGE}:latest
                 """
             }
         }
         
         stage('Push Image to Local Registry') {
             steps {
-                sh "docker push $REGISTRY/$IMAGE:latest"
+                sh "docker push ${REGISTRY}/${IMAGE}:latest"
             }
         }
 
         stage('Deploy to Minikube') {
             steps {
                 sh """
-                    kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
-                    kubectl apply -f k8s/service.yaml -n $NAMESPACE
+                    kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE}
+                    kubectl apply -f k8s/service.yaml -n ${NAMESPACE}
                 """
             }
         }
