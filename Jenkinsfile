@@ -51,12 +51,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to Minikube') {
+        stage('Deploy to Kubernetes') {
             steps {
                 withKubeConfig([credentialsId: 'kube-config']) {
                     sh """
-                        kubectl config use-context minikube
-                        kubectl apply -f k8s/deployment.yaml -n dev --validate=false
+                        kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE}
                     """
                 }
             }
