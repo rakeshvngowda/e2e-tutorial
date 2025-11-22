@@ -51,12 +51,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Minikube') {
             steps {
-                sh """
-                    kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE} --insecure-skip-tls-verify --validate=false
-                    kubectl apply -f k8s/service.yaml -n ${NAMESPACE} --insecure-skip-tls-verify --validate=false
-                """
+                withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG_PATH')]) {
+                    sh """
+                        export KUBECONFIG=$KUBECONFIG_PATH
+                        kubectl config use-context minikube
+                        kubectl apply -f k8s/deployment.yaml -n dev --validate=false
+                    """
+                }
             }
         }
     }
