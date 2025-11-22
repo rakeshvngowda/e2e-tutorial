@@ -26,12 +26,6 @@ pipeline {
                 sh 'npm install'
             }
         }
-        
-        stage('Build Project') {
-            steps {
-                sh 'npm run build || echo "No build script"'
-            }
-        }
 
         stage('Build Docker Image') {
             steps {
