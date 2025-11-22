@@ -2,6 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:24-alpine'
+            args '-u root:root'
         }
     }
 
@@ -9,6 +10,7 @@ pipeline {
         IMAGE = "e2e-tutorial"
         REGISTRY = "localhost:5000"
         NAMESPACE = "dev"
+        HOME = "${WORKSPACE}"
     }
 
     stages {
