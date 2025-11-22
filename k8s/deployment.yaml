@@ -18,7 +18,7 @@ spec:
       containers:
       - name: e2e-tutorial
         image: localhost:5000/e2e-tutorial:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         env:
