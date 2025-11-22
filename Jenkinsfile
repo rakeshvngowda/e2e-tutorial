@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         IMAGE = "e2e-tutorial"
-        REGISTRY = "localhost:5000"
         NAMESPACE = "dev"
     }
 
@@ -39,28 +38,25 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh """
-                    eval \$(minikube -p minikube docker-env)
                     docker build -t ${IMAGE}:latest .
-                    docker tag ${IMAGE}:latest ${REGISTRY}/${IMAGE}:latest
                 """
             }
         }
         
-        stage('Push Image to Local Registry') {
+        stage('Load Image to Minikube') {
             steps {
-                sh "docker push ${REGISTRY}/${IMAGE}:latest"
+                sh """
+                    minikube image load ${IMAGE}:latest
+                """
             }
         }
 
         stage('Deploy to Minikube') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG_PATH')]) {
-                    sh """
-                        export KUBECONFIG=$KUBECONFIG_PATH
-                        kubectl config use-context minikube
-                        kubectl apply -f k8s/deployment.yaml -n dev --validate=false
-                    """
-                }
+                sh """
+                    kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE} --insecure-skip-tls-verify --validate=false
+                    kubectl rollout restart deployment/e2e-tutorial -n ${NAMESPACE} --insecure-skip-tls-verify
+                """
             }
         }
     }
