@@ -54,8 +54,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 sh """
-                    kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE} --validate=false
-                    kubectl apply -f k8s/service.yaml -n ${NAMESPACE} --validate=false
+                    kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE} --insecure-skip-tls-verify --validate=false
+                    kubectl apply -f k8s/service.yaml -n ${NAMESPACE} --insecure-skip-tls-verify --validate=false
                 """
             }
         }
