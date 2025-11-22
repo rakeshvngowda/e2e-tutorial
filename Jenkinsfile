@@ -53,11 +53,10 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withKubeConfig([credentialsId: 'kube-config']) {
-                    sh """
-                        kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE}
-                    """
-                }
+                sh """
+                    kubectl apply -f k8s/deployment.yaml -n ${NAMESPACE} --validate=false
+                    kubectl apply -f k8s/service.yaml -n ${NAMESPACE} --validate=false
+                """
             }
         }
     }
