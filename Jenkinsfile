@@ -1,11 +1,10 @@
 pipeline {
     agent any
-    tools {
-        nodejs 'nodejs-24'
-    }
+    
     environment {
         APP_NAME = "e2e-tutorial"
     }
+    
     stages {
         stage('Checkout') {
             steps {
@@ -37,7 +36,7 @@ pipeline {
                 branch 'main'
             }
             steps {
-                sh 'tar -czf build-${env.BRANCH_NAME}.tar.gz ./'
+                sh 'tar -czf build-${BRANCH_NAME}.tar.gz ./'
             }
         }
 
@@ -49,17 +48,17 @@ pipeline {
                 echo "Deploying ${env.APP_NAME} from branch ${env.BRANCH_NAME}"
             }
         }
-
-        post {
-            always {
-                echo "Build completed for branch ${env.BRANCH_NAME}"
-            }
-            success {
-                echo "Build succeeded for branch ${env.BRANCH_NAME}"
-            }
-            failure {
-                echo "Build failed for branch ${env.BRANCH_NAME}"
-            }
+    }
+    
+    post {
+        always {
+            echo "Build completed for branch ${env.BRANCH_NAME}"
+        }
+        success {
+            echo "Build succeeded for branch ${env.BRANCH_NAME}"
+        }
+        failure {
+            echo "Build failed for branch ${env.BRANCH_NAME}"
         }
     }
 }
