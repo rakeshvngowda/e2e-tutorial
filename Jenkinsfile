@@ -10,15 +10,11 @@ pipeline {
     stages {
 
         stage('Cleanup Workspace') {
-            steps {
-                cleanWs()
-            }
+            steps { cleanWs() }
         }
-        
+
         stage('Checkout') {
-            steps {
-                checkout scm
-            }
+            steps { checkout scm }
         }
 
         stage('Install Dependencies') {
@@ -26,7 +22,6 @@ pipeline {
                 docker {
                     image 'node:24-alpine'
                     args '-u root:root'
-                    reuseNode true
                 }
             }
             steps {
@@ -37,15 +32,17 @@ pipeline {
         }
 
         stage('Build Docker Image') {
+            agent any
             steps {
                 sh """
-                    eval $(minikube -p minikube docker-env)
+                    echo '⚙ Loading Docker env from Minikube...'
+                    eval \$(minikube -p minikube docker-env)
                     docker build -t ${IMAGE}:latest .
                     docker tag ${IMAGE}:latest ${REGISTRY}/${IMAGE}:latest
                 """
             }
         }
-        
+
         stage('Push Image to Local Registry') {
             steps {
                 sh "docker push ${REGISTRY}/${IMAGE}:latest"
@@ -57,20 +54,15 @@ pipeline {
                 withCredentials([file(credentialsId: 'kubeconfig-file', variable: 'KUBECONFIG_PATH')]) {
                     sh """
                         export KUBECONFIG=$KUBECONFIG_PATH
-                        kubectl config use-context minikube
                         kubectl apply -f k8s/deployment.yaml -n dev --validate=false
                     """
                 }
             }
         }
     }
-    
+
     post {
-        success {
-            echo "🚀 Deployment completed successfully!"
-        }
-        failure {
-            echo "❌ Build or Deployment Failed!"
-        }
+        success { echo "🚀 Deployment completed successfully!" }
+        failure { echo "❌ Build or Deployment Failed!" }
     }
 }
