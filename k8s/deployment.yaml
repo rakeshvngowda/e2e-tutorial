@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: e2e-tutorial
+  namespace: dev
   labels:
     app: e2e-tutorial
 spec:
@@ -16,7 +17,8 @@ spec:
     spec:
       containers:
       - name: e2e-tutorial
-        image: e2e-tutorial:latest
+        image: localhost:5000/e2e-tutorial:latest
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
         env:
